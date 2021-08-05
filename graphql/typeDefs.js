@@ -1,4 +1,4 @@
-const { gql } = new require('apollo-server');
+const { gql } = new require('apollo-server-express');
 
 module.exports = gql`
   type Post {

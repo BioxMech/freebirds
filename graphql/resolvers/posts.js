@@ -1,8 +1,12 @@
 const Post = require('../../models/Post');
 const checkAuth = require('../../util/check-auth');
 
-const { AuthenticationError } = require('apollo-server');
+const { AuthenticationError } = require('apollo-server-express');
 const { argsToArgsConfig } = require('graphql/type/definition');
+
+const { PubSub } = require('graphql-subscriptions');
+
+const pubsub = new PubSub();
 
 module.exports = {
   Query: {
@@ -32,7 +36,7 @@ module.exports = {
   Mutation: {
     async createPost(_, { body }, context) {
       const user = checkAuth(context);
-      console.log(user);
+      // console.log(user);
 
       if (body.trim() === '') {
         throw new Error('Post body must not be empty');
@@ -47,9 +51,11 @@ module.exports = {
 
       const post = await newPost.save();
 
-      context.pubsub.publish('NEW_POST', {
+      // publish the post (subscriber apollo)
+      pubsub.publish('NEW_POST', {
         newPost: post
       })
+      console.log(context.pubsub)
 
       return post;
     },
@@ -73,7 +79,8 @@ module.exports = {
 
   Subscription: {
     newPost: {
-      subscribe: (_, __, { pubsub }) => pubsub.asyncIterator('NEW_POST')
+      // subscribe: (_, __, { pubsub }) => pubsub.asyncIterator('NEW_POST')
+      subscribe: () => pubsub.asyncIterator(['NEW_POST']),
     }
   }
 }
