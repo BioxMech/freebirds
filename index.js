@@ -137,6 +137,9 @@ async function startApolloServer(typeDefs, resolvers) {
   console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 }
 
+// To remove the deprecated error of findOneAndUpdate()
+mongoose.set('useFindAndModify', false);
+
 mongoose.connect(MONGODB, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('MongoDB Connected');

@@ -60,7 +60,7 @@ function AuthProvider(props) {
 
   function logout() {
     localStorage.removeItem('jwtToken');
-    console.log("AuthProvider LOGOUT")
+    // console.log("AuthProvider LOGOUT")
     dispatch({  // dispatch will initiate authReducer function
       type: 'LOGOUT'
     });

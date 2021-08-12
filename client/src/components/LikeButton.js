@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Label, Icon, Button } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 
 import MyPopup from '../util/MyPopup';
+import LikedIcon from '../assets/like.svg';
+import UnlikedIcon from '../assets/unlike.svg';
+import './styles.scss';
 
 function LikeButton ({ user, post: { id, likes, likeCount }}) {
 
@@ -19,34 +22,42 @@ function LikeButton ({ user, post: { id, likes, likeCount }}) {
   }, [user, likes]); // dependency, if any of these variables changes, recalculate the value
 
   const [likePost] = useMutation(LIKE_POST_MUTATION, {
-    variables: { postId: id }
+    variables: { postId: id },
   });
 
   const likeButton = user ? (
     liked ? ( // if liked
-      <Button color='teal'>
-        <Icon name='heart' />
-      </Button>
+      <IconButton>
+        <img src={UnlikedIcon} alt="..." style={{ width: "30px" }} />
+      </IconButton>
     ) : ( // if NOT liked
-      <Button color='teal' basic>
-        <Icon name='heart' />
-      </Button>
+      <IconButton>
+        <img src={LikedIcon} alt="..." style={{ width: "30px" }} />
+      </IconButton>
     )
   ) : ( // if user is not logged in
-    <Button as={Link} to="/login" color='teal' basic>
-      <Icon name='heart' />
-    </Button>
+    <IconButton component="a" href="/login">
+      <img src={LikedIcon} alt="..." style={{ width: "30px" }} />
+    </IconButton>
   )
 
   return (
     <MyPopup
       content={ liked ? "Unlike" : "Like" }
     >
-      <Button as='div' labelPosition='right' onClick={likePost}>
+      <Button className="Button-NoBG" component='div' 
+        onTouchStart={(event) => event.stopPropagation()}
+        onMouseDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          likePost(); 
+          event.stopPropagation(); 
+          if (user) {
+            event.preventDefault();
+          } 
+        } }
+      >
         { likeButton }
-        <Label basic color='teal' pointing='left'>
-          { likeCount }
-        </Label>
+        { likeCount }
       </Button>
     </MyPopup>
     

@@ -11,24 +11,35 @@ module.exports = gql`
     likeCount: Int!
     commentCount: Int!
   }
+
   type Comment {
     id: ID! # object id that is created on MongoDB side
     createdAt: String!
     username: String!
     body: String!
+    commentsLikes: [Like]!
+    commentsLikesCount: Int!
   }
+
   type Like {
     id: ID! # object id that is created on MongoDB side
     createdAt: String!
     username: String!
   }
+
   type User {
     id: ID! # object id that is created on MongoDB side
     email: String!
     token: String!
     username: String!
+    password: String!
     createdAt: String!
+    posts: [Post]!
+    likedPosts: [Post]!
+    repliedPosts: [Post]!
   }
+
+  # =========================================================
   # This is required for the mutation (as a form)
   input RegisterInput {
     username: String!
@@ -37,10 +48,19 @@ module.exports = gql`
     email: String!
   }
 
+  input UpdateUserInput {
+    username: String!
+    password: String!
+    newPassword: String!
+    newConfirmPassword: String!
+    email: String!
+  }
+
   # =========================================================
   type Query{
     getPosts: [Post]
     getPost(postId: ID!): Post
+    getUser(username: String!): User
   }
 
   type Mutation {
@@ -52,6 +72,8 @@ module.exports = gql`
     createComment(postId: ID!, body: String!): Post!
     deleteComment(postId: ID!, commentId: ID!): Post!
     likePost(postId: ID!): Post!
+    likeComment(postId: ID!, commentId: ID!): Post!
+    updateUser(updateUserInput: UpdateUserInput): User!
   }
 
   type Subscription {

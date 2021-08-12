@@ -1,19 +1,34 @@
-import React from 'react'
-import { Button, Form } from 'semantic-ui-react';
+import React, { useState } from 'react'
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { Alert } from '@material-ui/lab';
+import Snackbar from '@material-ui/core/Snackbar';
 
 import { FETCH_POSTS_QUERY } from '../util/graphql';
 import { useForm } from '../util/hooks';
 
 function PostForm() {
 
+  const [open, setOpen] = useState(false);
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
   const { onChange, onSubmit, values } = useForm(createPostCallback, {
     body: ''
   });
   
+  const [err, setErr] = useState(false);
 
-  const [createPost, { error }] = useMutation(CREATE_POST_MUTATION, {
+  const [createPost, { error, loading }] = useMutation(CREATE_POST_MUTATION, {
     variables: values,
     update(proxy, result) {
       const data = proxy.readQuery({
@@ -26,7 +41,7 @@ function PostForm() {
         query: FETCH_POSTS_QUERY,
         data: {
           ...data,
-          getPosts: {
+          getPosts: { 
             newData,
           },
         },
@@ -34,6 +49,10 @@ function PostForm() {
 
       // console.log(result);
       values.body = ''
+      setOpen(true)
+    }, 
+    onError: (err) => {
+      setErr(true);
     }
   })
 
@@ -41,31 +60,56 @@ function PostForm() {
     createPost();
   }
 
-  return ( 
-    <>
-      <Form onSubmit={onSubmit}>
-        <h2>Create a post:</h2>
-        <Form.Field>
-          <Form.Input 
-            placeholder="Hi World!"
-            name="body"
-            onChange={onChange}
-            value={values.body}
-            error={error ? true : false}
-          />
-          <Button type="submit" color="teal">
-            Submit
-          </Button>
-        </Form.Field>
-      </Form>
-      { error && (
+  return (
+    <form noValidate autoComplete="off" onSubmit={onSubmit}>
+      <Box>
+        <TextField 
+          name="body"
+          onChange={onChange}
+          value={values.body}
+          error={error ? true : false} 
+          variant="outlined" 
+          placeholder="Want to talk about it?" 
+          label="Release your worries & Soar!" 
+          helperText="Be a Free Bird!!"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          fullWidth
+          multiline
+        />
+      </Box>
+      {/* TODO: Add a loader after submitting posts */}
+      <Box mt={1}>
+        <Button type="submit" 
+          variant="outlined" 
+          color="inherit" 
+          disabled={(values.body === '' )  ? true : false}
+          style={{
+            backgroundColor: `${(values.body  === "" || loading) ? '' : "#84d4fc"}`,
+            borderColor: `${(values.body  === "" || loading) ? '' : "white"}`,
+          }}
+          startIcon={ loading ? 
+            <CircularProgress size="1.2rem" />
+          : ''}
+        >
+          Submit
+        </Button>
+        <Snackbar open={open} autoHideDuration={4000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="success">
+            Posted!
+          </Alert>
+        </Snackbar>
+      </Box>
+      
+      { err && (
         <div className="ui error message" style={{ marginBottom: 20 }}>
           <ul className="list">
             <li>{ error.graphQLErrors[0].message }</li>
           </ul>
         </div>
-    )}
-    </>
+      )}
+    </form>
   )
 }
 

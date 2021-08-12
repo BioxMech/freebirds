@@ -1,17 +1,14 @@
-// MenuBar
-.Button {
-  font-weight: 'bold';
-  background-color: #84d4fc !important;
+// MenuBar && PostCard
+.Button-NoBG {
+  // background-color: #84d4fc !important;
   border-color: white !important;
-
-  &:disabled { 
-    background-color: pink !important;
-    color: pink !important;
+  
+  &:hover, &:focus {
+    background-color: white !important;
+    outline: none !important;
   }
 }
 
-.Button:disabled {
-  background-color: pink !important;
-  color: pink !important;
+.cursive {
+  font-family: 'Chilanka', cursive;
 }
-

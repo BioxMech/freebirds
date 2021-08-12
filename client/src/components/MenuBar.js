@@ -4,10 +4,13 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { AuthContext } from '../context/auth';
 import Bird from '../assets/bird.svg';
@@ -26,6 +29,7 @@ function MenuBar() {
   const handleItemClick = (e) => setActiveItem(e.currentTarget.name);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -41,6 +45,7 @@ function MenuBar() {
     <AppBar position="static" color="transparent"  elevation={3}>
       <Toolbar >
         <Button  
+          className="Button-NoBG"
           href="/"
           style={{ marginRight: 'auto' }}
           disableRipple 
@@ -48,8 +53,8 @@ function MenuBar() {
           disableElevation 
           startIcon={<img src={Bird} alt="..." style={{ minWidth:'35px' }} />}
         >
-          <Typography variant="h5" >
-            FreeBirds
+          <Typography variant="h4"  >
+            <span className="cursive" style={{textTransform: 'none'}}><b>FreeBirds</b></span>
           </Typography>
         </Button>
 
@@ -67,10 +72,33 @@ function MenuBar() {
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           transformOrigin={{ horizontal: "center" }}
         >
-          <MenuItem onClick={handleClose} href={`/profile/${user.id}`} component="a">Profile</MenuItem>
-          <MenuItem onClick={logout} href={`/`} component="a">Logout</MenuItem>
+          <MenuItem onClick={handleClose} href={`/profile/${user.username}`} component="a">Profile</MenuItem>
+          <MenuItem onClick={handleClose} href={`/settings`} component="a">Settings</MenuItem>
+          <MenuItem onClick={() => {setConfirmOpen(true); handleClose();}}>Logout</MenuItem>
+          {/* Confirmation prompt for logging out */}
+          <Dialog
+            open={confirmOpen}
+            onClose={() => setConfirmOpen(false)}
+            aria-labelledby="draggable-dialog-title"
+          >
+            <DialogTitle>
+              Confirm logout?
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText variant="h6">
+                Are you sure you want to logout?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button autoFocus onClick={() => setConfirmOpen(false)} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={logout} href={`/`} style={{ color: "red" }}>
+                Logout
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Menu>
-
       </Toolbar>
     </AppBar>
   ) : 
@@ -87,8 +115,8 @@ function MenuBar() {
           disableElevation 
           startIcon={<img src={Bird} alt="..." style={{ minWidth:'35px' }} />}
         >
-          <Typography variant="h5" >
-            FreeBirds
+          <Typography variant="h4" >
+            <span className="cursive" style={{textTransform: 'none'}}><b>FreeBirds</b></span>
           </Typography>
         </Button>
         <Hidden xsDown>
@@ -102,7 +130,7 @@ function MenuBar() {
               marginRight: '10px', 
               fontWeight: 'bold', 
               backgroundColor: `${activeItem === "login" ? '' : "#84d4fc"}`,
-              borderColor: `${activeItem === "login" ? '' : ""}`,
+              borderColor: `${activeItem === "login" ? '' : "white"}`,
             }}
             disabled={ activeItem === "login" ? true : false}
           >
@@ -117,7 +145,7 @@ function MenuBar() {
             style={{ 
               fontWeight: 'bold', 
               backgroundColor: `${activeItem === "register" ? '' : "#84d4fc"}`,
-              borderColor: `${activeItem === "register" ? '' : ""}`,
+              borderColor: `${activeItem === "register" ? '' : "white"}`,
             }}
             disabled={ activeItem === "register" ? true : false}
           >
@@ -127,8 +155,24 @@ function MenuBar() {
 
         {/* Only for MOBILE */}
         <Hidden smUp>
-          <IconButton aria-label="menu">
-            <MenuIcon />
+          {
+            path === "login" ?
+            <Button 
+              href="/register" 
+              name="register"
+              onClick={handleItemClick}  
+              variant="outlined" 
+              color="inherit" 
+              style={{ 
+                fontWeight: 'bold', 
+                backgroundColor: `${activeItem === "register" ? '' : "#84d4fc"}`,
+                borderColor: `${activeItem === "register" ? '' : "white"}`,
+              }}
+              disabled={ activeItem === "register" ? true : false}
+            >
+              Register
+            </Button>
+            :
             <Button 
               href="/login"
               name="login" 
@@ -139,13 +183,13 @@ function MenuBar() {
                 marginRight: '10px', 
                 fontWeight: 'bold', 
                 backgroundColor: `${activeItem === "login" ? '' : "#84d4fc"}`,
-                borderColor: `${activeItem === "login" ? '' : ""}`,
+                borderColor: `${activeItem === "login" ? '' : "white"}`,
               }}
               disabled={ activeItem === "login" ? true : false}
             >
               Login
             </Button>
-          </IconButton>
+          }
         </Hidden>
       </Toolbar>
     </AppBar>
