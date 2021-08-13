@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import { useQuery } from '@apollo/client';
@@ -56,7 +57,9 @@ function PostCard({ post: { body, createdAt, id, username, likeCount, commentCou
         <CardHeader
           avatar={
             <MyPopup content={`Joined on ${moment(data.getUser.createdAt).add(8, "hours").format('dddd, MMMM Do YYYY')} (${moment(createdAt).fromNow()})`} placement="top-start" >
-              <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' />
+              <Link to={`/profile/${username}`}>
+                <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' />
+              </Link>
             </MyPopup>
           }
           title={ username }

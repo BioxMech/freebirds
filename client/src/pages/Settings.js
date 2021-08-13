@@ -28,7 +28,7 @@ function Settings(props) {
 
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
-
+  
   const { loading: PLoading, data: PData, error: PError } = useQuery(PROFILE_QUERY, {
     variables: {
       username: context.user.username

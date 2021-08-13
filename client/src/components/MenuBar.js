@@ -11,6 +11,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import { AuthContext } from '../context/auth';
 import Bird from '../assets/bird.svg';
@@ -39,6 +40,28 @@ function MenuBar() {
     setAnchorEl(null);
   };
 
+  const theme = createTheme();
+
+  theme.typography.h3 = {
+    fontSize: '1.5rem', // mobile
+    '@media (min-width:600px)': {
+      fontSize: '2rem', // laptop
+    },
+    [theme.breakpoints.up('md')]: {
+      fontSize: '1.8rem', // monitor
+    },
+  };
+
+  theme.typography.h4 = {
+    fontSize: '1.5rem', // mobile
+    '@media (min-width:600px)': {
+      fontSize: '1.5rem', // laptop
+    },
+    [theme.breakpoints.up('md')]: {
+      fontSize: '1.5rem', // monitor
+    },
+  }
+
   const menuBar = user ?
   (
     // AppBar uses paper components inside
@@ -53,13 +76,19 @@ function MenuBar() {
           disableElevation 
           startIcon={<img src={Bird} alt="..." style={{ minWidth:'35px' }} />}
         >
-          <Typography variant="h4"  >
-            <span className="cursive" style={{textTransform: 'none'}}><b>FreeBirds</b></span>
-          </Typography>
+          <ThemeProvider theme={theme}>
+            <Typography variant="h3"  >
+              <span className="cursive" style={{textTransform: 'none'}}><b>FreeBirds</b></span>
+            </Typography>
+          </ThemeProvider>
         </Button>
 
         <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-          { user.username } &nbsp;
+          <ThemeProvider theme={theme}>
+            <Typography variant="h4">
+              <span className="cursive" style={{ fontWeight: "bold", textTransform: 'none'}}>{ user.username }</span> &nbsp;
+            </Typography>
+          </ThemeProvider>
           <img src='https://react.semantic-ui.com/images/avatar/large/molly.png' alt="..." style={{ width:'35px' }} />
         </Button>
         <Menu

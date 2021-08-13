@@ -18,10 +18,11 @@ module.exports = {
   Query: {
     async getUser(_, { username }) {
       try {
+        let checkUsername = username.toLowerCase();
         // no condition in () will find ALL
-        const user = await User.findOne({ username: username }).exec();
+        const user = await User.findOne({ checkUsername: checkUsername }).exec();
         if (user) {
-          return user;
+          return user
         } else {
           throw new Error('User not found');
         }
@@ -30,6 +31,7 @@ module.exports = {
       }
     },
   },
+
   Mutation: {
     async login(_, { username, password }) {
       const { errors, valid } = validateLoginInput(username, password);
@@ -86,9 +88,12 @@ module.exports = {
       // SALT & HASH password and create an auth token
       password = await bcrypt.hash(password, 12); // using external lib bcrypt to encrypt password
 
+      const checkUsername = username.toLowerCase();
+
       const newUser = new User({
         email,
         username,
+        checkUsername,
         password,
         createdAt: new Date().toISOString()
       });

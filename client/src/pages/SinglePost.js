@@ -1,4 +1,5 @@
 import React, { useContext, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@apollo/client';
 import moment from 'moment';
@@ -45,6 +46,7 @@ function SinglePost(props) {
 
   if (data) {
     username = data.getPost.username;
+    console.log(data)
   }
 
   const { data: PData } = useQuery(PROFILE_QUERY, {
@@ -81,7 +83,7 @@ function SinglePost(props) {
 
   if (loading || error) {
 
-    postMarkup = Loading_screen();
+    postMarkup = Loading_screen("Fetching the post...");
     // If post cannot be found
     if (error) {
       deletePostCallback();
@@ -100,20 +102,24 @@ function SinglePost(props) {
           <Grid item xs={12} sm={3} md={2}>
             <Paper elevation={10}>
             <Grid container >
-              <Grid item xs={6} sm={12}>
-                <img src="https://react.semantic-ui.com/images/avatar/large/molly.png" alt="..." style={{ width: "100%"}} />
-              </Grid>
+              <MyPopup content={`To ${username} profile`} placement="top">
+                <Grid item xs={6} sm={12}>
+                  <Link to={`/profile/${username}`}>
+                    <img src="https://react.semantic-ui.com/images/avatar/large/molly.png" alt="..." style={{ width: "100%"}} />
+                  </Link>
+                </Grid>
+              </MyPopup>
               {
                 PData ? 
                 <Grid item xs={6} sm={12} >
                   <Box my={1} mx={1} >
                     <Box>
-                      <Typography variant="h6" ><span className="cursive"><b>{ username }</b></span></Typography>
+                      <Typography variant="h6" ><span className="cursive"><b>{ PData.getUser.username }</b></span></Typography>
                     </Box>
                     <Box display="flex" alignItems="center">
                       <img src={Calendar} alt="..." style={{ width: "24px" }} /> &nbsp; 
                       <Typography variant="body2">
-                        { `Joined ${moment(createdAt).format("ll")}` }
+                        { `Joined ${moment(PData.getUser.createdAt).format("ll")}` }
                       </Typography>
                     </Box>
                     <Box display="flex" alignItems="center">

@@ -95,7 +95,25 @@ function Profile (props) {
     profile = Loading_screen({ content: "Fetching your profile..." });
 
     if (error) {
-      nonExistingProfile();
+      setTimeout(() => {
+        nonExistingProfile();
+      }, 2000)
+
+      profile = 
+      <Box mx={"auto"}  display="flex" alignItems="center" justifyContent="center" style={{ height: "80vh" }}>
+        <Box style={{ textAlign: "center" }} my={"auto"}> 
+          <img src="https://c.tenor.com/LA8GtrlaFtYAAAAi/kiiroitori-yellow-bird.gif" alt="..." />
+            <ThemeProvider theme={theme}>
+              <Typography variant="h3">
+                <span className="cursive">Cannot find profile...</span>
+              </Typography>
+              <Typography variant="h6">
+                <span className="cursive">~ Redirecting you back home ~</span>
+              </Typography>
+            </ThemeProvider>
+          </Box>
+      </Box>
+      
       // TODO: For future references (there are more errors)
       // if (error.graphQLErrors[0].message === "Error: User not found") {
       //   nonExistingProfile();

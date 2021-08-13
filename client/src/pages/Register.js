@@ -29,7 +29,7 @@ function Register(props) {
     username: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   
   const [addUser, { loading }] = useMutation(REGISTER_USER, {
