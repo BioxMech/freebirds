@@ -11,7 +11,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 
 import { AuthContext } from '../context/auth';
 import Bird from '../assets/bird.svg';
@@ -76,19 +76,19 @@ function MenuBar() {
           disableElevation 
           startIcon={<img src={Bird} alt="..." style={{ minWidth:'35px' }} />}
         >
-          <ThemeProvider theme={theme}>
-            <Typography variant="h3"  >
+          {/* <ThemeProvider theme={theme}> */}
+            <Typography variant="h5"  >
               <span className="cursive" style={{textTransform: 'none'}}><b>FreeBirds</b></span>
             </Typography>
-          </ThemeProvider>
+          {/* </ThemeProvider> */}
         </Button>
 
         <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-          <ThemeProvider theme={theme}>
-            <Typography variant="h4">
+          {/* <ThemeProvider theme={theme}> */}
+            <Typography variant="h6">
               <span className="cursive" style={{ fontWeight: "bold", textTransform: 'none'}}>{ user.username }</span> &nbsp;
             </Typography>
-          </ThemeProvider>
+          {/* </ThemeProvider> */}
           <img src='https://react.semantic-ui.com/images/avatar/large/molly.png' alt="..." style={{ width:'35px' }} />
         </Button>
         <Menu
@@ -144,7 +144,7 @@ function MenuBar() {
           disableElevation 
           startIcon={<img src={Bird} alt="..." style={{ minWidth:'35px' }} />}
         >
-          <Typography variant="h4" >
+          <Typography variant="h5" >
             <span className="cursive" style={{textTransform: 'none'}}><b>FreeBirds</b></span>
           </Typography>
         </Button>

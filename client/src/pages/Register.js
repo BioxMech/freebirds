@@ -13,7 +13,10 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import { green } from '@material-ui/core/colors';
 import Paper from '@material-ui/core/Paper';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
 
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { AuthContext } from '../context/auth';
@@ -24,6 +27,8 @@ function Register(props) {
   const context = useContext(AuthContext); // Holds the LOGIN or LOGOUT
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { onChange, onSubmit, values } = useForm(registerUser, {
     username: "",
@@ -55,6 +60,23 @@ function Register(props) {
       username: values.username
     }
   });
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword)
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleClickShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword)
+  };
+
+  const handleMouseDownConfirmPassword = (event) => {
+    event.preventDefault();
+  };
+
 
   const useStyles = makeStyles((theme) => ({
     backdrop: {
@@ -159,7 +181,7 @@ function Register(props) {
               <Box mt={3}>
                 <TextField 
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   onChange={onChange}
                   value={values.password}
                   error={
@@ -175,12 +197,24 @@ function Register(props) {
                     shrink: true,
                   }}
                   fullWidth
+                  InputProps= {{
+                    endAdornment: 
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  }}
                   />
               </Box>
               <Box mt={3}>
                 <TextField 
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   onChange={onChange}
                   value={values.confirmPassword}
                   error={
@@ -196,6 +230,18 @@ function Register(props) {
                     shrink: true,
                   }}
                   fullWidth
+                  InputProps= {{
+                    endAdornment: 
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowConfirmPassword}
+                        onMouseDown={handleMouseDownConfirmPassword}
+                      >
+                        {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  }}
                   />
               </Box>
               <Box mt={2}>
