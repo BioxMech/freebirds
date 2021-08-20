@@ -254,8 +254,8 @@ function SinglePost(props) {
                           color="inherit" 
                           disabled={(values.comment.trim() === '' || commentLoading) ? true : false}
                           style={{
-                            backgroundColor: `${(values.comment.trim() || commentLoading) === ''? '' : "#84d4fc"}`,
-                            borderColor: `${(values.comment.trim() || commentLoading) === '' ? '' : "white"}`,
+                            backgroundColor: `${(values.comment.trim() === '' || commentLoading) ? '' : "#84d4fc"}`,
+                            borderColor: `${(values.comment.trim() === '' || commentLoading) ? '' : "white"}`,
                           }}
                           startIcon={ commentLoading ? 
                             <CircularProgress size="1.2rem" />
