@@ -18,7 +18,7 @@ export const FETCH_POSTS_QUERY = gql`
 export const PROFILE_QUERY = gql `
 query ($username: String!) {
   getUser(username: $username) {
-    id email username createdAt
+    id email username createdAt profilePicture
     posts {
       id body username createdAt likeCount commentCount
       likes {

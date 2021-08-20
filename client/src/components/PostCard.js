@@ -28,7 +28,7 @@ function PostCard({ post: { body, createdAt, id, username, likeCount, commentCou
   
   const { user } = useContext(AuthContext);
 
-  const { data = { getUser: {createdAt: ''}} } = useQuery(PROFILE_QUERY, {
+  const { data = { getUser: {createdAt: '', profilePicture: ''}} } = useQuery(PROFILE_QUERY, {
     variables: {
       username: username
     }
@@ -58,7 +58,8 @@ function PostCard({ post: { body, createdAt, id, username, likeCount, commentCou
           avatar={
             <MyPopup content={`Joined on ${moment(data.getUser.createdAt).add(8, "hours").format('dddd, MMMM Do YYYY')} (${moment(createdAt).fromNow()})`} placement="top-start" >
               <Link to={`/profile/${username}`}>
-                <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' />
+                {/* <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' /> */}
+                <Avatar src={data.getUser.profilePicture} alt={username} />
               </Link>
             </MyPopup>
           }
@@ -69,7 +70,7 @@ function PostCard({ post: { body, createdAt, id, username, likeCount, commentCou
             onClick={event => {
               event.stopPropagation();
               event.preventDefault();
-              console.log("Button clicked");
+              // console.log("Button clicked");
             }}
             callback={deletePostCallback} 
             /> } 
@@ -116,7 +117,7 @@ function PostCard({ post: { body, createdAt, id, username, likeCount, commentCou
 const PROFILE_QUERY = gql `
   query ($username: String!) {
     getUser(username: $username) {
-      createdAt
+      profilePicture createdAt
     }
   }
 `;

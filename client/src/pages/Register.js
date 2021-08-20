@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
+import Alert from '@material-ui/lab/Alert';
 import gql from 'graphql-tag';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -21,6 +22,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { AuthContext } from '../context/auth';
 import { useForm } from '../util/hooks';
+import './styles.scss';
 
 function Register(props) {
 
@@ -29,13 +31,28 @@ function Register(props) {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [fileError, setFileError] = useState(false);
+  const [preview, setPreview] = useState('');
 
-  const { onChange, onSubmit, values } = useForm(registerUser, {
+  const { onChange, onSubmit, onDone, values } = useForm(registerUser, {
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
+    profilePicture: ""
   });
+
+  function checkFileSize(event) {
+    const file = event.target.files[0];
+    if (!file) return
+    // 10 mb max
+    if (file.size <= 10000000) {
+      onDone(file);
+      setPreview(URL.createObjectURL(event.target.files[0]))
+    } else {
+      setFileError(true);
+    }
+  }
   
   const [addUser, { loading }] = useMutation(REGISTER_USER, {
     update(_, { data: { register: userData }}) { // if mutation is successful, it will execute this
@@ -45,6 +62,8 @@ function Register(props) {
     }, 
     onError(err) {
       if (err.graphQLErrors)
+        console.log(err)
+        console.log(err.graphQLErrors)
         // console.log(err.graphQLErrors[0].extensions.errors);
         setErrors(err.graphQLErrors[0].extensions.errors);
     },
@@ -110,8 +129,28 @@ function Register(props) {
   (values.password === "" || values.password.length < 6) ||
   (values.confirmPassword === "" || values.confirmPassword.length < 6) ||
   (values.username.length < 4 && values.username.length >= 0) ||
+  values.username.length > 10 ||
   (values.email.length < 6 && values.email.length >= 0) || 
   usernameExist;
+
+  // const UPLOAD_FILE = gql `
+  //   mutation uploadFile($file: Upload!) {
+  //     uploadFile(file: $file) {
+  //       url
+  //     }
+  //   }
+  // `
+
+  // const [uploadFile] = useMutation(UPLOAD_FILE, {
+  //   onCompleted: (data) => console.log(data)
+  // })
+
+  // const handleFileChange = e => {
+  //   const file = e.target.files[0];
+  //   if (!file) return
+  //   onDone(file);
+  //   uploadFile({ variables: { file } })
+  // }
 
   return (
     <Box mt={5}>
@@ -123,20 +162,20 @@ function Register(props) {
                 <Box display="flex" alignItems="center" >BE A FREEBIRD <img src="https://media.giphy.com/media/FawHVOfqiLeLBmNdtl/source.gif" alt="..." style={{ width: "80px" }} /></Box>
               </Typography>
             </ThemeProvider>
-            <form onSubmit={onSubmit} noValidate >
+            <form onSubmit={onSubmit} noValidate enctype="multipart/form-data">
               <Box mt={3}>
                 <TextField 
                   name="username"
                   onChange={onChange}
                   value={values.username}
                   error={
-                    (usernameExist || (values.username.length < 4 && values.username.length > 0)) ? true : false
+                    (usernameExist || (values.username.length < 4 && values.username.length > 0) || values.username.length > 10 ) ? true : false
                   }
                   variant="outlined" 
                   placeholder="Your username" 
                   label="Username" 
                   helperText={
-                    (errors.username) ? "Username taken" : `What is your UNIQUE FreeBird username? (minimum 4 characters)`
+                    (errors.username) ? "Username taken" : `What is your UNIQUE FreeBird username? (Limit to 4 - 10 characters)`
                   }
                   InputLabelProps={{
                     shrink: true,
@@ -147,7 +186,7 @@ function Register(props) {
                     <InputAdornment position="end">
                       {
                         values.username === "" ? ("") :
-                          usernameExist || (values.username.length < 4 && values.username.length > 0) ? (
+                          usernameExist || (values.username.length < 4 && values.username.length > 0) || values.username.length > 10 ? (
                             <CancelIcon color="error" />
                           ) : (
                             <CheckCircleIcon style={{ color: green[500] }} />
@@ -156,6 +195,51 @@ function Register(props) {
                     </InputAdornment>,
                   }}
                   />
+              </Box>
+              <Box my={3}>
+                <Typography variant="body1" style={{ marginBottom: "10px" }}>
+                  <span style={{textDecoration: 'underline'}}>Profile Picture </span><br/>
+                  <Typography variant="body2">(Max 10 MB) PNG/JPEG only</Typography>
+                </Typography>
+                <Button
+                  variant="contained"
+                  component="label"
+                  style={{
+                    backgroundColor: "#84d4fc",
+                    // borderColor: "white",
+                  }}
+
+                >
+                  Upload Picture
+                  <input
+                    type="file"
+                    hidden
+                    onChange={checkFileSize}
+                    accept="image/gif, image/jpeg, image/png"
+                  />
+                </Button>
+                { values.profilePicture ? 
+                  <Box my={1}>
+                    <Box mb={1}>
+                      <b>Preview</b>
+                    </Box>
+                    <Box display="flex">
+                      <img src={preview} alt="..." style={{ width: '35px' }} />
+                      {/* TODO: Add in a remove image button */}
+                      {/* <Button variant="outlined" color="secondary" size="small" startIcon={<CancelIcon color="error" />}>Remove</Button> */}
+                      {/* <IconButton color="secondary"><CancelIcon color="error" /></IconButton> */}
+                    </Box>
+                  </Box>
+                  :
+                  ""
+                }
+                {/* <FileBase64
+                  type="file"
+                  multiple={false}
+                  onDone={e => checkFileSize(e)}
+                /> */}
+                { values.image ? <Box my={1}><Button variant="outlined" color="secondary" size="small" startIcon={<CancelIcon color="error" />}>Remove</Button></Box> : ''}
+                { fileError ? <Box my={1}><Alert severity="error">File size is over the limit / invalid file</Alert></Box> : '' }
               </Box>
               <Box mt={3}>
                 <TextField 
@@ -286,16 +370,18 @@ const REGISTER_USER = gql`
     $email: String!
     $password: String!
     $confirmPassword: String!
+    $profilePicture: Upload!
   ) {
     register(
       registerInput: {
         username: $username
         email: $email
         password: $password
-        confirmPassword: $confirmPassword
+        confirmPassword: $confirmPassword,
+        profilePicture: $profilePicture
       }
     ){
-      id email username createdAt token
+      id email username createdAt token profilePicture
     }
   }
 `

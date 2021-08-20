@@ -6,6 +6,7 @@ const userSchema = new Schema({
   password: String,
   email: String,
   createdAt: String,
+  profilePicture: String, 
   posts: [{
     body: String,
     username: String,
@@ -15,6 +16,7 @@ const userSchema = new Schema({
         body: String,
         username: String,
         createdAt: String,
+        profilePicture: String,
         commentsLikes: [
           {
             username: String,
@@ -39,6 +41,7 @@ const userSchema = new Schema({
         body: String,
         username: String,
         createdAt: String,
+        profilePicture: String,
         commentsLikes: [
           {
             username: String,
@@ -63,6 +66,7 @@ const userSchema = new Schema({
         body: String,
         username: String,
         createdAt: String,
+        profilePicture: String,
         commentsLikes: [
           {
             username: String,

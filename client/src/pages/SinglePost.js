@@ -1,5 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from "framer-motion"
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@apollo/client';
 import moment from 'moment';
@@ -17,6 +18,7 @@ import Divider from '@material-ui/core/Divider';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { AuthContext } from '../context/auth';
 import { useForm } from '../util/hooks';
@@ -40,13 +42,13 @@ function SinglePost(props) {
 
   const { data, loading, error } = useQuery(FETCH_POST_QUERY, {
     variables: {
-      postId,
+      postId
     },
   });
 
   if (data) {
     username = data.getPost.username;
-    console.log(data)
+    // console.log(data)
   }
 
   const { data: PData } = useQuery(PROFILE_QUERY, {
@@ -55,19 +57,48 @@ function SinglePost(props) {
     }
   })
 
+  let profileUsername = '';
+  if (user) {
+    profileUsername = user.username
+  }
+  const { data: profileData } = useQuery(PROFILE_QUERY, {
+    variables: {
+      username: profileUsername
+    }
+  })
+
+  let pp;
+
+  if (profileData) {
+    pp = profileData.getUser.profilePicture
+  }
 
   const { onChange, onSubmit, values } = useForm(submitCommentCallback, {
-    comment: ""
+    comment: "",
+    profilePicture: pp
   });
+  
 
-  const [submitComment] = useMutation(SUBMIT_COMMENT_MUTATION, {
+
+  const [submitComment, {loading: commentLoading}] = useMutation(SUBMIT_COMMENT_MUTATION, {
     update() {
       values.comment = ""
       console.log("submitted")
+      // console.log(values.profilePicture)
+    },
+    onError(err) {
+      if (err.graphQLErrors) {
+        console.log(err.graphQLErrors)
+        alert("Bugs were found. Please contact the Admin immediately. Thank you very much!!")
+        setTimeout(() => {
+          props.history.push('/');
+        }, 4000)
+      }
     },
     variables: {
       postId,
-      body: values.comment
+      body: values.comment,
+      profilePicture: pp
     }
   })
 
@@ -86,6 +117,7 @@ function SinglePost(props) {
     postMarkup = Loading_screen("Fetching the post...");
     // If post cannot be found
     if (error) {
+      // console.log(error)
       deletePostCallback();
       // TODO: For future references (there are more errors)
       // if (error.graphQLErrors[0].message === "Error: Post not found") {
@@ -105,7 +137,11 @@ function SinglePost(props) {
               <MyPopup content={`To ${username} profile`} placement="top">
                 <Grid item xs={6} sm={12}>
                   <Link to={`/profile/${username}`}>
-                    <img src="https://react.semantic-ui.com/images/avatar/large/molly.png" alt="..." style={{ width: "100%"}} />
+                    {
+                      PData ?
+                      <Avatar src={PData.getUser.profilePicture} alt={PData.getUser.username} style={{ width: "100%", borderRadius: 0, height: "100%" }} />
+                      : <Avatar src="" alt="A" style={{ width: "100%"}} />
+                    }
                   </Link>
                 </Grid>
               </MyPopup>
@@ -211,6 +247,9 @@ function SinglePost(props) {
                         }}
                         fullWidth
                         multiline
+                        startIcon={ commentLoading ? 
+                          <CircularProgress size="1.2rem" />
+                        : ''}
                       />
                       <Box mt={1}>
                         <Button type="submit" 
@@ -231,35 +270,51 @@ function SinglePost(props) {
               </Box>
             }
 
-            {/* Delete OR Like A Comment */}
-            { comments.map((comment) => (
-              <Box mt={2}>
-                <Card fluid key={comment.id}>
-                  <CardHeader
-                    avatar={
-                      <MyPopup content={`Joined on ${moment(comment.createdAt).add(8, "hours").format('dddd, MMMM Do YYYY')} (${moment(comment.createdAt).fromNow()})`} placement="top-start" ><Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' /></MyPopup>
-                    }
-                    title={ comment.username }
-                    subheader={ `Replied at ${moment(comment.createdAt).add(8, "hours").format('MMMM Do YYYY, h:mmA')} (${moment(comment.createdAt).fromNow()})` }
-                    action={ 
-                      <Box>
-                        <CommentLikeButton user={user} postId={id} commentId={comment.id} commentsLikes={comment.commentsLikes} commentsLikesCount={comment.commentsLikesCount} />
-                        {user && user.username === comment.username && ( <DeleteButton postId={id} commentId={comment.id} /> )}
-                      </Box>
-                    }
-                  />
-                  <Divider />
-                  <CardContent >
-                    <Box>
-                      <Box>
-                        <Typography variant="body1">
-                          { comment.body }
-                        </Typography>
-                      </Box>
-                    </Box>
-                    
-                  </CardContent>
-                </Card>
+            {/* Comment Section */}
+            { comments.slice(0).reverse().map((comment) => (
+              
+                <Box mt={2}>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 20
+                    }}
+                  >
+                    <Card fluid key={comment.id}>
+                    {/* {console.log(comment)} */}
+                      <CardHeader
+                        avatar={
+                          <MyPopup content={`Joined on ${moment(comment.createdAt).add(8, "hours").format('dddd, MMMM Do YYYY')} (${moment(comment.createdAt).fromNow()})`} placement="top-start" >
+                            {/* <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' /> */}
+                            <Avatar src={comment.profilePicture} alt={comment.username} />
+                          </MyPopup>
+                        }
+                        title={ comment.username }
+                        subheader={ `Replied at ${moment(comment.createdAt).add(8, "hours").format('MMMM Do YYYY, h:mmA')} (${moment(comment.createdAt).fromNow()})` }
+                        action={ 
+                          <Box>
+                            <CommentLikeButton user={user} postId={id} commentId={comment.id} commentsLikes={comment.commentsLikes} commentsLikesCount={comment.commentsLikesCount} />
+                            {user && user.username === comment.username && ( <DeleteButton postId={id} commentId={comment.id} /> )}
+                          </Box>
+                        }
+                      />
+                      <Divider />
+                      <CardContent >
+                        <Box>
+                          <Box>
+                            <Typography variant="body1">
+                              { comment.body }
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                      </CardContent>
+                    </Card>
+                  
+                </motion.div>
               </Box>
             ))}
           </Grid>
@@ -273,11 +328,15 @@ function SinglePost(props) {
 }
 
 const SUBMIT_COMMENT_MUTATION = gql `
-  mutation ($postId: ID!, $body: String!) {
-    createComment(postId: $postId, body: $body) {
+  mutation (
+    $postId: ID!, 
+    $body: String!, 
+    $profilePicture: String!
+  ) {
+    createComment(postId: $postId, body: $body, profilePicture: $profilePicture) {
       id
       comments {
-        id body createdAt username
+        id body createdAt username profilePicture
       }
       commentCount
     }
@@ -293,7 +352,7 @@ const FETCH_POST_QUERY = gql `
       }
       commentCount
       comments {
-        id username createdAt body
+        id username createdAt body profilePicture
         commentsLikes {
           id username
         }
@@ -306,12 +365,8 @@ const FETCH_POST_QUERY = gql `
 const PROFILE_QUERY = gql `
   query ($username: String!) {
     getUser(username: $username) {
-      username
-      posts {
-        id
-      }
+      username profilePicture
     }
   }
 `;
-
 export default SinglePost;

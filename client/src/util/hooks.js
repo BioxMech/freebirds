@@ -15,9 +15,14 @@ export const useForm = (callback, initialState = {}) => {
     callback();
   }
 
+  const onDone = (file) => {
+    setValues({ ...values, profilePicture: file })
+  }
+
   return {
     onChange,
     onSubmit,
+    onDone,
     values
   }
 }

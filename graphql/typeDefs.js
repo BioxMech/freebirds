@@ -1,6 +1,8 @@
 const { gql } = new require('apollo-server-express');
 
 module.exports = gql`
+  scalar Upload
+
   type Post {
     id: ID! # object id that is created on MongoDB side
     body: String!
@@ -17,6 +19,7 @@ module.exports = gql`
     createdAt: String!
     username: String!
     body: String!
+    profilePicture: String
     commentsLikes: [Like]!
     commentsLikesCount: Int!
   }
@@ -31,6 +34,7 @@ module.exports = gql`
     id: ID! # object id that is created on MongoDB side
     email: String!
     token: String!
+    profilePicture: String
     username: String!
     checkUsername: String!
     password: String!
@@ -47,6 +51,7 @@ module.exports = gql`
     password: String!
     confirmPassword: String!
     email: String!
+    profilePicture: Upload!
   }
 
   input UpdateUserInput {
@@ -55,6 +60,7 @@ module.exports = gql`
     newPassword: String!
     newConfirmPassword: String!
     email: String!
+    profilePicture: Upload!
   }
 
   # =========================================================
@@ -70,7 +76,7 @@ module.exports = gql`
     login(username: String!, password: String!): User!
     createPost(body: String!): Post!
     deletePost(postId: ID!): String!
-    createComment(postId: ID!, body: String!): Post!
+    createComment(postId: ID!, body: String!, profilePicture: String!): Post!
     deleteComment(postId: ID!, commentId: ID!): Post!
     likePost(postId: ID!): Post!
     likeComment(postId: ID!, commentId: ID!): Post!

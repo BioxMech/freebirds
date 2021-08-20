@@ -3,6 +3,9 @@ const { PubSub } = require('graphql-subscriptions'); // PubSub = Publish & Subsc
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
+const {
+  graphqlUploadExpress // A Koa implementation is also exported.
+} = require('graphql-upload');
 
 // graphql imports
 const { createServer } = require('http');
@@ -99,7 +102,11 @@ async function startApolloServer(typeDefs, resolvers) {
   // Required logic for integrating with Express
   await server.start();
   const app = express();
+  // app.use(express.json({limit: "30mb",extended:true}));
+  // app.use(express.urlencoded({limit: "30mb",extended:true}));
   app.use(cors());
+  app.use(graphqlUploadExpress());
+  app.use(express.static('public')); // Allows to extract the images from the public folder
 
   server.applyMiddleware({
       app,
@@ -140,7 +147,7 @@ async function startApolloServer(typeDefs, resolvers) {
 // To remove the deprecated error of findOneAndUpdate()
 mongoose.set('useFindAndModify', false);
 
-mongoose.connect(MONGODB, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(MONGODB, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
   .then(() => {
     console.log('MongoDB Connected');
     // return server.listen({ port: PORT });

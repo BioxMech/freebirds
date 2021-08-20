@@ -33,7 +33,6 @@ function Profile (props) {
       username: username
     }
   })
-
   // If the user does not exist, you should kick the person out / display error message
   function nonExistingProfile() {
     props.history.push('/');
@@ -121,7 +120,7 @@ function Profile (props) {
     }
   } else {
 
-    const { username, createdAt, posts, likedPosts, repliedPosts } = data.getUser;
+    const { username, createdAt, posts, likedPosts, repliedPosts, profilePicture } = data.getUser;
 
     profile = (
       <Box mt={5}>
@@ -142,7 +141,10 @@ function Profile (props) {
                   <Grid container>
                     <Grid xs={4} item>
                       <Box display="flex" justifyContent="center" mx={3} my={3}>
-                        <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' 
+                        {/* <Avatar aria-label="recipe" src='https://react.semantic-ui.com/images/avatar/large/molly.png' 
+                          style={{ width: "100%", height: "100%", maxWidth: "200px", maxHeight: "200px", minWidth: "80px", minHeight: "80px" }} 
+                        /> */}
+                        <Avatar aria-label="recipe" src={profilePicture} alt={username} 
                           style={{ width: "100%", height: "100%", maxWidth: "200px", maxHeight: "200px", minWidth: "80px", minHeight: "80px" }} 
                         />
                       </Box>
@@ -334,7 +336,7 @@ function Profile (props) {
 const PROFILE_QUERY = gql `
   query ($username: String!) {
     getUser(username: $username) {
-      id email username createdAt
+      id email username createdAt profilePicture
       posts {
         id body username createdAt likeCount commentCount
         likes {

@@ -7,8 +7,10 @@ const User = require('../../models/User');
 module.exports = {
   Mutation: {
     // context is needed to check if the user has login
-    createComment: async (_, { postId, body }, context) => {
+    createComment: async (_, { postId, body, profilePicture }, context) => {
+      
       const { id, username } = checkAuth(context);
+      
       if (body.trim() === "") {
         throw new UserInputError('Empty comment', {
           errors: {
@@ -21,9 +23,11 @@ module.exports = {
       const userAccount = await User.findById(id);
 
       if (post) {
-        post.comments.unshift({
+        // console.log(profilePicture)
+        post.comments.push({
           body,
           username,
+          profilePicture,
           createdAt: new Date().toISOString()
         })
 

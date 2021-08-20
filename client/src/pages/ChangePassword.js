@@ -13,6 +13,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import Snackbar from '@material-ui/core/Snackbar';
 
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
@@ -44,7 +45,8 @@ function Settings(props) {
     email: context.user.email,
     password: "",
     newPassword: "",
-    newConfirmPassword: ""
+    newConfirmPassword: "",
+    profilePicture: ""
   });
 
   const [updateUser, { loading }] = useMutation(UPDATE_USER, {
@@ -53,12 +55,16 @@ function Settings(props) {
       setSuccess(true);
       setTimeout(() => {
         props.history.push("/")
-      }, 600)
+      }, 3000)
     }, 
     onError(err) {
       if (err.graphQLErrors)
         // console.log(err.graphQLErrors[0].extensions.errors);
         setErrors(err.graphQLErrors[0].extensions.errors);
+        alert("Sorry bug encountered! Please alert the admin asap!!");
+        setTimeout(() => {
+          props.history.push('/');
+        }, 3000);
     },
     variables: values // values because it has all the values needed
   })
@@ -263,15 +269,18 @@ function Settings(props) {
               </Box>
             </form> 
             {/* Display Errors */}
-            { Object.keys(errors).length > 0 && (
+            { Object.keys(errors).length > 0 
+              ?
+              (
               <div className="ui error message">
-              <ul className="list">
                 { Object.values(errors).map((value) => (
-                  <li key={value}>{ value }</li>
+                  <Box mt={3}>
+                    <Alert key={value} severity="error">{value}</Alert>
+                  </Box>
                 ))}
-              </ul>
-            </div>
-            )}
+              </div>
+              ) : ''
+            }
             <Backdrop className={classes.backdrop} open={ loading ? true : false }>
               <CircularProgress color="inherit" />
             </Backdrop>
@@ -279,6 +288,11 @@ function Settings(props) {
               success ?
               <Box mt={3}>
                 <Alert severity="success">Password Changed successfully!!</Alert>
+                <Snackbar open={true} autoHideDuration={6000}>
+                  <Alert severity="info">
+                    Redirecting to Home in 3 seconds ...
+                  </Alert>
+                </Snackbar>
               </Box>
               : ''
             }
@@ -298,6 +312,7 @@ const UPDATE_USER = gql`
     $password: String!
     $newPassword: String!
     $newConfirmPassword: String!
+    $profilePicture: Upload!
   ) {
     updateUser(
       updateUserInput: {
@@ -306,9 +321,10 @@ const UPDATE_USER = gql`
         password: $password
         newPassword: $newPassword
         newConfirmPassword: $newConfirmPassword
+        profilePicture: $profilePicture
       }
     ){
-      id email username createdAt token
+      id email username createdAt token profilePicture
     }
   }
 `

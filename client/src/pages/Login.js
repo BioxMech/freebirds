@@ -174,7 +174,7 @@ const LOGIN_USER = gql`
       username: $username
       password: $password
     ) {
-      id email username createdAt token
+      id email username createdAt token profilePicture
     }
   }
 `

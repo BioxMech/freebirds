@@ -103,11 +103,9 @@ function PostForm() {
       </Box>
       
       { err && (
-        <div className="ui error message" style={{ marginBottom: 20 }}>
-          <ul className="list">
-            <li>{ error.graphQLErrors[0].message }</li>
-          </ul>
-        </div>
+        <Box mt={1}>
+          <Alert severity="error">{ error.graphQLErrors[0].message }</Alert>
+        </Box>
       )}
     </form>
   )

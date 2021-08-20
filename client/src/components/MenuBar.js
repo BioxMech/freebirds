@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -12,7 +13,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { createTheme } from '@material-ui/core/styles';
+import Avatar from '@material-ui/core/Avatar';
 
+import { useQuery } from '@apollo/client';
 import { AuthContext } from '../context/auth';
 import Bird from '../assets/bird.svg';
 import './styles.scss';
@@ -20,6 +23,18 @@ import './styles.scss';
 function MenuBar() {
   
   const { user, logout } = useContext(AuthContext);
+
+  let username = '';
+
+  if (user) {
+    username = user.username
+  }
+
+  const { data = { getUser: {profilePicture: ''}} } = useQuery(PROFILE_QUERY, {
+    variables: {
+      username: username
+    }
+  })
 
   const pathname = window.location.pathname;
 
@@ -29,7 +44,7 @@ function MenuBar() {
 
   const handleItemClick = (e) => setActiveItem(e.currentTarget.name);
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleClick = (event) => {
@@ -89,7 +104,7 @@ function MenuBar() {
               <span className="cursive" style={{ fontWeight: "bold", textTransform: 'none'}}>{ user.username }</span> &nbsp;
             </Typography>
           {/* </ThemeProvider> */}
-          <img src='https://react.semantic-ui.com/images/avatar/large/molly.png' alt="..." style={{ width:'35px' }} />
+          <Avatar src={data.getUser.profilePicture} alt={user.username} />
         </Button>
         <Menu
           id="simple-menu"
@@ -226,5 +241,13 @@ function MenuBar() {
 
   return menuBar;
 }
+
+const PROFILE_QUERY = gql `
+  query ($username: String!) {
+    getUser(username: $username) {
+      profilePicture
+    }
+  }
+`;
 
 export default MenuBar

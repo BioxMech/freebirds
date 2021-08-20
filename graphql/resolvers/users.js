@@ -2,6 +2,12 @@ const User = require('../../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { UserInputError } = require('apollo-server-express');
+const {
+  GraphQLUpload
+} = require('graphql-upload');
+// const { finished } = require('stream/promises');
+const path = require('path');
+const fs = require('fs');
 
 const { validateRegisterInput, validateLoginInput, validateUpdateUserInput } = require('../../util/validators');
 const { SECRET_KEY } = require('../../config');
@@ -10,11 +16,14 @@ function generateToken(user) {
   return jwt.sign({
     id: user.id,
     email: user.email,
-    username: user.username
-  }, SECRET_KEY, { expiresIn: '1h' });
+    username: user.username,
+    profilePicture: user.profilePicture
+  }, SECRET_KEY, { expiresIn: '2h' });
 }
 
 module.exports = {
+  Upload: GraphQLUpload,
+  
   Query: {
     async getUser(_, { username }) {
       try {
@@ -29,6 +38,7 @@ module.exports = {
       } catch(err) {
         throw new Error(err);
       }
+      
     },
   },
 
@@ -59,14 +69,15 @@ module.exports = {
         id: user._id,
         token
       }
-    },
+    },    
 
     // parent is the result of the previous input
     // args is the register mutation argument (registerInput)
     // context (will be back)
     // info is some general metadata information (not important)
-    async register(_, { registerInput: { username, email, password, confirmPassword } }
+    async register(_, { registerInput: { username, email, password, confirmPassword, profilePicture } }
     ) {
+
       // Validate user data
       const { valid, errors } = validateRegisterInput(username, email, password, confirmPassword);
       if (!valid) {
@@ -85,6 +96,26 @@ module.exports = {
         })
       }
 
+      if (profilePicture === "") {
+        url = ''
+      } else {
+        const { createReadStream, filename, mimetype, encoding } = await profilePicture.promise;
+
+        if (!fs.existsSync(`public/${username}`)){
+          fs.mkdirSync(`public/${username}`);
+          fs.mkdirSync(`public/${username}/images`);
+      }
+  
+        // Invoking the `createReadStream` will return a Readable Stream.
+        // See https://nodejs.org/api/stream.html#stream_readable_streams
+        const stream = createReadStream();
+        const pathName = path.join(__dirname, `../../public/${username}/images/${filename}`)
+        await stream.pipe(fs.createWriteStream(pathName))
+  
+        url = `http://localhost:5000/${username}/images/${filename}`
+      }
+      
+
       // SALT & HASH password and create an auth token
       password = await bcrypt.hash(password, 12); // using external lib bcrypt to encrypt password
 
@@ -95,6 +126,7 @@ module.exports = {
         username,
         checkUsername,
         password,
+        profilePicture: url,
         createdAt: new Date().toISOString()
       });
 
@@ -110,10 +142,11 @@ module.exports = {
       }
     },
 
-    // Change password
-    async updateUser(_, { updateUserInput: { username, email, password, newPassword, newConfirmPassword } }
+    // Update user
+    async updateUser(_, { updateUserInput: { username, email, password, newPassword, newConfirmPassword, profilePicture } }
     ) {
 
+      // Changing account settings
       if (newPassword === "" ) {
         // Validate user data
         const { valid, errors } = validateUpdateUserInput(username, email, password);
@@ -121,7 +154,7 @@ module.exports = {
         if (!valid) {
           throw new UserInputError('Errors', { errors });
         }
-
+        
         // Find the user information
         const user = await User.findOne({ username });
   
@@ -138,17 +171,45 @@ module.exports = {
           throw new UserInputError('Wrong credentials', { errors });
         }
 
-        const res = await User.findOneAndUpdate({ username: username }, { email: email }, { new: true });
-        
         const token = generateToken(user)
+
+        if (profilePicture === "") {
+          const res = await User.findOneAndUpdate({ username: username }, { email: email }, { new: true });
+
+          return {
+            ...res._doc,
+            id: res._id, // this is produced by MongoDB when saving an entry
+            token
+          }
+        }
+
+        const { createReadStream, filename, mimetype, encoding } = await profilePicture.promise;
+
+        if (!fs.existsSync(`public/${username}`)){
+          fs.mkdirSync(`public/${username}`);
+          fs.mkdirSync(`public/${username}/images`);
+        }
+        console.log("After existence")
+        // Invoking the `createReadStream` will return a Readable Stream.
+        // See https://nodejs.org/api/stream.html#stream_readable_streams
+        const stream = createReadStream();
+        const pathName = path.join(__dirname, `../../public/${username}/images/${filename}`)
+        await stream.pipe(fs.createWriteStream(pathName))
+  
+        url = `http://localhost:5000/${username}/images/${filename}`
+
+        const res = await User.findOneAndUpdate({ username: username }, { email: email,  profilePicture: url }, { new: true });
 
         return {
           ...res._doc,
           id: res._id, // this is produced by MongoDB when saving an entry
           token
         }
+        
+        
 
-        // =====================================================================
+      // =====================================================================
+      // Changing password
       } else {
 
         // Validate user data
