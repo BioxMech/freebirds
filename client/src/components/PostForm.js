@@ -84,7 +84,7 @@ function PostForm() {
         <Button type="submit" 
           variant="outlined" 
           color="inherit" 
-          disabled={(values.body === '' )  ? true : false}
+          disabled={(values.body === '' || loading )  ? true : false}
           style={{
             backgroundColor: `${(values.body  === "" || loading) ? '' : "#84d4fc"}`,
             borderColor: `${(values.body  === "" || loading) ? '' : "white"}`,

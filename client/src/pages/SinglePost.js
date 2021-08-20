@@ -252,7 +252,7 @@ function SinglePost(props) {
                         <Button type="submit" 
                           variant="outlined" 
                           color="inherit" 
-                          disabled={values.comment.trim() === ''}
+                          disabled={(values.comment.trim() === '' || commentLoading) ? true : false}
                           style={{
                             backgroundColor: `${(values.comment.trim() || commentLoading) === ''? '' : "#84d4fc"}`,
                             borderColor: `${(values.comment.trim() || commentLoading) === '' ? '' : "white"}`,
