@@ -247,9 +247,6 @@ function SinglePost(props) {
                         }}
                         fullWidth
                         multiline
-                        startIcon={ commentLoading ? 
-                          <CircularProgress size="1.2rem" />
-                        : ''}
                       />
                       <Box mt={1}>
                         <Button type="submit" 
@@ -257,9 +254,12 @@ function SinglePost(props) {
                           color="inherit" 
                           disabled={values.comment.trim() === ''}
                           style={{
-                            backgroundColor: `${values.comment.trim() === ''? '' : "#84d4fc"}`,
-                            borderColor: `${values.comment.trim() === '' ? '' : "white"}`,
+                            backgroundColor: `${(values.comment.trim() || commentLoading) === ''? '' : "#84d4fc"}`,
+                            borderColor: `${(values.comment.trim() || commentLoading) === '' ? '' : "white"}`,
                           }}
+                          startIcon={ commentLoading ? 
+                            <CircularProgress size="1.2rem" />
+                          : ''}
                         >
                           Submit
                         </Button>
