@@ -73,12 +73,15 @@ function Settings(props) {
     }, 
     onError(err) {
       if (err.graphQLErrors) {
-        console.log(err.graphQLErrors)
+        // console.log(err.graphQLErrors)
+        if (err.graphQLErrors.length == 0) {
+          alert("Sorry bug encountered! Please alert the admin asap!!");
+          setTimeout(() => {
+            props.history.push('/');
+          }, 3000);
+        }
         setErrors(err.graphQLErrors[0].extensions.errors);
-        alert("Sorry bug encountered! Please alert the admin asap!!");
-        setTimeout(() => {
-          props.history.push('/');
-        }, 3000);
+        
       }
     },
     variables: values // values because it has all the values needed
