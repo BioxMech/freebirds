@@ -65,6 +65,7 @@ function Settings(props) {
   const [updateUser, { loading }] = useMutation(UPDATE_USER, {
     update(_, { data }) { // if mutation is successful, it will execute this
       setSuccess(true);
+      setErrors({});
       context.login(data.updateUser);
       setTimeout(() => {
         history.go(0)
@@ -74,7 +75,7 @@ function Settings(props) {
     onError(err) {
       if (err.graphQLErrors) {
         // console.log(err.graphQLErrors)
-        if (err.graphQLErrors.length == 0) {
+        if (err.graphQLErrors.length === 0) {
           alert("Sorry bug encountered! Please alert the admin asap!!");
           setTimeout(() => {
             props.history.push('/');

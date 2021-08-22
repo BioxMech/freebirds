@@ -53,6 +53,7 @@ function Settings(props) {
     update(_, { data}) { // if mutation is successful, it will execute this
       context.login(data.updateUser); // context LOGIN
       setSuccess(true);
+      setErrors({})
       setTimeout(() => {
         props.history.push("/")
       }, 3000)
@@ -60,7 +61,7 @@ function Settings(props) {
     onError(err) {
       if (err.graphQLErrors)
         // console.log(err.graphQLErrors[0].extensions.errors);
-        if (err.graphQLErrors.length == 0) {
+        if (err.graphQLErrors.length === 0) {
           alert("Sorry bug encountered! Please alert the admin asap!!");
           setTimeout(() => {
             props.history.push('/');

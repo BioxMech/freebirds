@@ -349,7 +349,9 @@ function Register(props) {
               <div className="ui error message">
               <ul className="list">
                 { Object.values(errors).map((value) => (
-                  <li key={value}>{ value }</li>
+                  <Box mt={3}>
+                    <Alert key={value} severity="error">{value}</Alert>
+                  </Box>
                 ))}
               </ul>
             </div>
